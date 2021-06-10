@@ -444,6 +444,7 @@ extern int unittest_scram (void);
 #endif
 extern int unittest_assignors (void);
 extern int unittest_map (void);
+extern int unittest_compression (void);
 
 int rd_unittest (void) {
         int fails = 0;
@@ -460,6 +461,7 @@ int rd_unittest (void) {
                 { "msg",        unittest_msg },
                 { "murmurhash", unittest_murmur2 },
                 { "fnv1a",      unittest_fnv1a },
+                { "compression", unittest_compression },
 #if WITH_HDRHISTOGRAM
                 { "rdhdrhistogram", unittest_rdhdrhistogram },
 #endif

@@ -501,6 +501,8 @@ static const struct rd_kafka_err_desc rd_kafka_err_descs[] = {
                   "Local: No operation performed"),
         _ERR_DESC(RD_KAFKA_RESP_ERR__AUTO_OFFSET_RESET,
                   "Local: No offset to automatically reset to"),
+        _ERR_DESC(RD_KAFKA_RESP_ERR__OVERFLOW,
+                  "Local: Write overflow"),
 
 	_ERR_DESC(RD_KAFKA_RESP_ERR_UNKNOWN,
 		  "Unknown broker error"),
@@ -1803,6 +1805,9 @@ static void rd_kafka_stats_emit_all (rd_kafka_t *rk) {
                                         &rkt->rkt_avg_batchsize);
                 rd_kafka_stats_emit_avg(st, "batchcnt",
                                         &rkt->rkt_avg_batchcnt);
+                if (rk->rk_type == RD_KAFKA_PRODUCER)
+                        rd_kafka_stats_emit_avg(st, "batchcompratio",
+                                                &rkt->rkt_avg_batchcompratio);
 
                 _st_printf("\"partitions\":{ " /*open partitions*/);
 

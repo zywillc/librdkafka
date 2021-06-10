@@ -43,40 +43,6 @@ struct rd_kafka_transport_s;
 
 
 /**
- * MessageSet compression codecs
- */
-typedef enum {
-	RD_KAFKA_COMPRESSION_NONE,
-	RD_KAFKA_COMPRESSION_GZIP = RD_KAFKA_MSG_ATTR_GZIP,
-	RD_KAFKA_COMPRESSION_SNAPPY = RD_KAFKA_MSG_ATTR_SNAPPY,
-	RD_KAFKA_COMPRESSION_LZ4 = RD_KAFKA_MSG_ATTR_LZ4,
-	RD_KAFKA_COMPRESSION_ZSTD = RD_KAFKA_MSG_ATTR_ZSTD,
-	RD_KAFKA_COMPRESSION_INHERIT, /* Inherit setting from global conf */
-        RD_KAFKA_COMPRESSION_NUM
-} rd_kafka_compression_t;
-
-static RD_INLINE RD_UNUSED const char *
-rd_kafka_compression2str (rd_kafka_compression_t compr) {
-        static const char *names[RD_KAFKA_COMPRESSION_NUM] = {
-                [RD_KAFKA_COMPRESSION_NONE] = "none",
-                [RD_KAFKA_COMPRESSION_GZIP] = "gzip",
-                [RD_KAFKA_COMPRESSION_SNAPPY] = "snappy",
-                [RD_KAFKA_COMPRESSION_LZ4] = "lz4",
-                [RD_KAFKA_COMPRESSION_ZSTD] = "zstd",
-                [RD_KAFKA_COMPRESSION_INHERIT] = "inherit"
-        };
-        static RD_TLS char ret[32];
-
-        if ((int)compr < 0 || compr >= RD_KAFKA_COMPRESSION_NUM) {
-                rd_snprintf(ret, sizeof(ret),
-                            "codec0x%x?", (int)compr);
-                return ret;
-        }
-
-        return names[compr];
-}
-
-/**
  * MessageSet compression levels
  */
 typedef enum {
@@ -159,7 +125,7 @@ typedef enum {
 
 /* Increase in steps of 64 as needed.
  * This must be larger than sizeof(rd_kafka_[topic_]conf_t) */
-#define RD_KAFKA_CONF_PROPS_IDX_MAX (64*28)
+#define RD_KAFKA_CONF_PROPS_IDX_MAX (64*29)
 
 /**
  * @struct rd_kafka_anyconf_t
@@ -399,6 +365,7 @@ struct rd_kafka_conf_s {
 	int    batch_num_messages;
         int    batch_size;
 	rd_kafka_compression_t compression_codec;
+        rd_bool_t streaming_compression;
         int    dr_err_only;
         int    sticky_partition_linger_ms;
 

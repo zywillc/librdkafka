@@ -1,3 +1,36 @@
+#librdkafka v1.8.0
+
+librdkafka v1.8.0 is a feature release:
+
+ * The Producer now uses streaming compression (rather than batched compression)
+   to compress batches of messages (MessageSets). Prior to this enhancement
+   the number of messages included in a batch were limited by the
+   **uncompressed** `batch.size`, with streaming compressing the limit
+   is enforced **after** compression. This drastically improves
+   the number of messages that can be included in a single compressed batch,
+   yielding higher throughput and lower latency.
+   Streaming compression is supported by all compression types except snappy,
+   which will use the previous batched compression methjod instead.
+   [FIXME](link-to-blog)
+
+## Upgrade considerations
+
+
+ * `batch.size` is now automatically set to 90% of `message.max.bytes`,
+   unless explicitly configured. We recommend not configuring `batch.size`.
+ * Streaming compression requires libzstd 1.4.0 or later. For older versions
+   batched compression will be used.
+ * Streaming compression is only enabled when connected to Apache Kafka broker
+   version v0.11.0 or later, and librdkafka is built with libzstd v1.4 or later.
+
+
+## Enhancements
+
+ * `compratio` metric added to the statistics output, representing
+   the producer batch compression ratio in percentages.
+
+
+
 # librdkafka v1.7.1
 
 librdkafka v1.7.1 is a maintenance release.
