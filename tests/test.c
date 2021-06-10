@@ -6413,9 +6413,6 @@ int test_sub_start (const char *func, int line, int is_quick,
         if (!is_quick && test_quick)
                 return 0;
 
-        if (subtests_to_run && !strstr(func, subtests_to_run))
-                return 0;
-
         if (fmt && *fmt) {
                 va_list ap;
                 char buf[256];
@@ -6429,6 +6426,11 @@ int test_sub_start (const char *func, int line, int is_quick,
         } else {
                 rd_snprintf(test_curr->subtest, sizeof(test_curr->subtest),
                             "%s:%d", func, line);
+        }
+
+        if (subtests_to_run && !strstr(test_curr->subtest, subtests_to_run)) {
+                *test_curr->subtest = '\0';
+                return 0;
         }
 
         TIMING_START(&test_curr->subtest_duration, "SUBTEST");
