@@ -325,7 +325,7 @@ rd_kafka_aws_msk_iam_credential_refresh0 (
         str_builder_add_str(sb, role_session_name);
         str_builder_add_str(sb, "&Version=");
         str_builder_add_str(sb, version);
-        str_builder_add_str(sb, "&WebIdentityToken");
+        str_builder_add_str(sb, "&WebIdentityToken=");
         str_builder_add_str(sb, role_web_identity_token);
         char *request_parameters = str_builder_dump(sb);
         str_builder_clear(sb);
