@@ -93,6 +93,7 @@ int main (int argc, char **argv) {
         const char *aws_security_token;         /* Argument: aws security token for temp credentials */
         const char *role_arn;                   /* Argument: aws RoleARN to use for STS */
         const char *role_session_name;          /* Argument: aws session name to use for STS */
+        const char *role_web_identity_token;    /* Argument: aws WebIdentityToen to use for STS*/
 
         /*
          * Argument validation
@@ -106,7 +107,7 @@ int main (int argc, char **argv) {
             aws_access_key_id = argv[3];
             aws_secret_access_key = argv[4];
             aws_region = argv[5];
-        } else if (argc == 9) {
+        } else if (argc == 10) {
             brokers = argv[1];
             topic   = argv[2];
             aws_access_key_id = argv[3];
@@ -115,6 +116,7 @@ int main (int argc, char **argv) {
             aws_security_token = argv[6];
             role_arn = argv[7];
             role_session_name = argv[8];
+            role_web_identity_token = argv[9];
         } else {
             fprintf(stderr, "%% Usage: %s <broker> <topic> (optional) <aws_access_key_id> <aws_secret_access_key> <aws_region>\n", argv[0]);
                 return 1;
@@ -174,7 +176,7 @@ int main (int argc, char **argv) {
             }
         }
 
-        if (argc == 9) {
+        if (argc == 10) {
             if (rd_kafka_conf_set(conf, "sasl.aws.security.token", aws_security_token,
                                   errstr, sizeof(errstr)) != RD_KAFKA_CONF_OK) {
                     fprintf(stderr, "%s\n", errstr);
@@ -194,6 +196,12 @@ int main (int argc, char **argv) {
             }
 
             if (rd_kafka_conf_set(conf, "enable.sasl.aws.use.sts", "1",
+                                  errstr, sizeof(errstr)) != RD_KAFKA_CONF_OK) {
+                    fprintf(stderr, "%s\n", errstr);
+                    return 1;
+            }
+
+            if (rd_kafka_conf_set(conf, "sasl.aws.role.web_identity_token", role_web_identity_token,
                                   errstr, sizeof(errstr)) != RD_KAFKA_CONF_OK) {
                     fprintf(stderr, "%s\n", errstr);
                     return 1;

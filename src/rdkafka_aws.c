@@ -401,42 +401,42 @@ int rd_kafka_aws_send_request (rd_kafka_aws_credential_t *credential,
                         const char *signed_headers,
                         const char *request_parameters,
                         const EVP_MD *md) {
-        char *canonical_request = rd_kafka_aws_build_canonical_request(
-                host,
-                method,
-                "",
-                canonical_headers,
-                signed_headers,
-                request_parameters,
-                md
-        );
-        char *credential_scope = rd_kafka_aws_construct_credential_scope(
-                ymd,
-                aws_region,
-                aws_service
-        );
+        // char *canonical_request = rd_kafka_aws_build_canonical_request(
+        //         host,
+        //         method,
+        //         "",
+        //         canonical_headers,
+        //         signed_headers,
+        //         request_parameters,
+        //         md
+        // );
+        // char *credential_scope = rd_kafka_aws_construct_credential_scope(
+        //         ymd,
+        //         aws_region,
+        //         aws_service
+        // );
         char *amz_date = rd_kafka_aws_construct_amz_date(ymd, hms);
-        char *string_to_sign = rd_kafka_aws_build_string_to_sign(
-                algorithm,
-                credential_scope,
-                amz_date,
-                canonical_request,
-                md
-        );
-        char *signature = rd_kafka_aws_build_signature(
-                aws_secret_access_key,
-                aws_region,
-                ymd,
-                aws_service,
-                string_to_sign
-        );
-        char *authorization_header = rd_kafka_aws_construct_authorization_header(
-                algorithm,
-                aws_access_key_id,
-                credential_scope,
-                signed_headers,
-                signature
-        );
+        // char *string_to_sign = rd_kafka_aws_build_string_to_sign(
+        //         algorithm,
+        //         credential_scope,
+        //         amz_date,
+        //         canonical_request,
+        //         md
+        // );
+        // char *signature = rd_kafka_aws_build_signature(
+        //         aws_secret_access_key,
+        //         aws_region,
+        //         ymd,
+        //         aws_service,
+        //         string_to_sign
+        // );
+        // char *authorization_header = rd_kafka_aws_construct_authorization_header(
+        //         algorithm,
+        //         aws_access_key_id,
+        //         credential_scope,
+        //         signed_headers,
+        //         signature
+        // );
 
         CURL *curl;
         CURLcode res;
@@ -486,11 +486,11 @@ int rd_kafka_aws_send_request (rd_kafka_aws_credential_t *credential,
                 headers = curl_slist_append(headers, curl_content_length_header);
                 headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded; charset=utf-8");
 
-                str_builder_add_str(sb, "Authorization: ");
-                str_builder_add_str(sb, authorization_header);
-                char *curl_auth_header = str_builder_dump(sb);
-                str_builder_clear(sb);
-                headers = curl_slist_append(headers, curl_auth_header);
+                // str_builder_add_str(sb, "Authorization: ");
+                // str_builder_add_str(sb, authorization_header);
+                // char *curl_auth_header = str_builder_dump(sb);
+                // str_builder_clear(sb);
+                // headers = curl_slist_append(headers, curl_auth_header);
 
                 str_builder_add_str(sb, "X-Amz-Date: ");
                 str_builder_add_str(sb, amz_date);
@@ -499,14 +499,14 @@ int rd_kafka_aws_send_request (rd_kafka_aws_credential_t *credential,
                 headers = curl_slist_append(headers, curl_amz_date_header);
                 headers = curl_slist_append(headers, "Accept-Encoding: gzip");
 
-                char *curl_amz_security_token_header = NULL;
-                if (aws_security_token != NULL) {
-                        str_builder_add_str(sb, "X-Amz-Security-Token: ");
-                        str_builder_add_str(sb, aws_security_token);
-                        curl_amz_security_token_header = str_builder_dump(sb);
-                        str_builder_clear(sb);
-                        headers = curl_slist_append(headers, curl_amz_security_token_header);
-                }
+                // char *curl_amz_security_token_header = NULL;
+                // if (aws_security_token != NULL) {
+                //         str_builder_add_str(sb, "X-Amz-Security-Token: ");
+                //         str_builder_add_str(sb, aws_security_token);
+                //         curl_amz_security_token_header = str_builder_dump(sb);
+                //         str_builder_clear(sb);
+                //         headers = curl_slist_append(headers, curl_amz_security_token_header);
+                // }
                 
                 str_builder_destroy(sb);
                 curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
@@ -574,9 +574,9 @@ int rd_kafka_aws_send_request (rd_kafka_aws_credential_t *credential,
                 rd_free(curl_host);
                 rd_free(curl_host_header);
                 rd_free(curl_content_length_header);
-                rd_free(curl_auth_header);
+                // rd_free(curl_auth_header);
                 rd_free(curl_amz_date_header);
-                RD_IF_FREE(curl_amz_security_token_header, rd_free);
+                // RD_IF_FREE(curl_amz_security_token_header, rd_free);
         }
         curl_easy_cleanup(curl);
 

@@ -299,10 +299,11 @@ rd_kafka_aws_msk_iam_credential_refresh0 (
         /* parameters to build request_parameters */
         char *role_arn = rd_kafka_aws_uri_encode(conf->sasl.role_arn);
         char *role_session_name = rd_strdup(conf->sasl.role_session_name);
+        char *role_web_identity_token = rd_kafka_aws_uri_encode(conf->sasl.role_web_identity_token);
 
         char duration_sec[256];
         rd_snprintf(duration_sec, sizeof(duration_sec), "%d", conf->sasl.duration_sec);
-        char *action = "AssumeRole";
+        char *action = "AssumeRoleWithWebIdentity";
         char *version = "2011-06-15";
         /******************************************/
         rwlock_wrunlock(&handle->lock);
@@ -324,6 +325,8 @@ rd_kafka_aws_msk_iam_credential_refresh0 (
         str_builder_add_str(sb, role_session_name);
         str_builder_add_str(sb, "&Version=");
         str_builder_add_str(sb, version);
+        str_builder_add_str(sb, "&WebIdentityToken");
+        str_builder_add_str(sb, role_web_identity_token);
         char *request_parameters = str_builder_dump(sb);
         str_builder_clear(sb);
 
