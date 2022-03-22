@@ -926,6 +926,8 @@ static const struct rd_kafka_property rd_kafka_properties[] = {
      _RK(sasl.role_arn), "AWS RoleARN to use for calling STS."},
     { _RK_GLOBAL|_RK_HIGH|_RK_SENSITIVE, "sasl.aws.role.session.name", _RK_C_STR,
      _RK(sasl.role_session_name), "Session name to use for STS AssumeRole."},
+    { _RK_GLOBAL|_RK_HIGH|_RK_SENSITIVE, "sasl.aws.role.web_identity_token", _RK_C_STR,
+     _RK(sasl.role_web_identity_token), "WebIdentityToken to use for STS AssumeRole."},
     { _RK_GLOBAL, "sasl.aws.duration.sec", _RK_C_INT,
       _RK(sasl.duration_sec), "The duration, in seconds, of the role session. "
       "Minimum is 900 seconds (15 minutes) and max is 12 hours. "

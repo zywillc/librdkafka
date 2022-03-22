@@ -294,6 +294,7 @@ struct rd_kafka_conf_s {
                 char *aws_security_token;  /* needed for STS AssumeRole */
                 char *role_arn;  /* needed for STS AssumeRole */
                 char *role_session_name;  /* needed for STS AssumeRole */
+                char *role_web_identity_token; /* needed for STS AssumeRoleWithWebIdentityToken */
                 int   duration_sec;  /* needed for STS AssumeRole, defaults to 900 if not set */
                 /* SASL/AWS_MSK_IAM credential refresh event callback */
 #endif
