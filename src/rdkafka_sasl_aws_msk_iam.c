@@ -299,7 +299,10 @@ rd_kafka_aws_msk_iam_credential_refresh0 (
         /* parameters to build request_parameters */
         char *role_arn = rd_kafka_aws_uri_encode(conf->sasl.role_arn);
         char *role_session_name = rd_strdup(conf->sasl.role_session_name);
-        char *role_web_identity_token = rd_kafka_aws_uri_encode(conf->sasl.role_web_identity_token);
+        char *role_web_identity_token = rd_strdup(conf->sasl.role_web_identity_token);
+
+        /*debug copied piw token*/
+        rd_kafka_dbg(rk, SECURITY, "SASLAWSMSKIAM", "Web Identity Token is %s", role_web_identity_token);
 
         char duration_sec[256];
         rd_snprintf(duration_sec, sizeof(duration_sec), "%d", conf->sasl.duration_sec);
@@ -383,6 +386,7 @@ rd_kafka_aws_msk_iam_credential_refresh0 (
         RD_IF_FREE(hms, rd_free);
         RD_IF_FREE(role_session_name, rd_free);
         RD_IF_FREE(role_arn, rd_free);
+        RD_IF_FREE(role_web_identity_token, rd_free);
         RD_IF_FREE(canonical_headers, rd_free);
         RD_IF_FREE(request_parameters, rd_free);
 
