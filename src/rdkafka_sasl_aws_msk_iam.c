@@ -203,7 +203,7 @@ rd_kafka_aws_msk_iam_set_credential (rd_kafka_t *rk,
 
         /* Schedule a refresh 80% through its remaining lifetime */
         handle->wts_refresh_after =
-                (rd_ts_t)(now_wallclock + 0.1 *
+                (rd_ts_t)(now_wallclock + 0.8 *
                           (wts_md_lifetime - now_wallclock));
 
         RD_IF_FREE(handle->errstr, rd_free);
@@ -786,7 +786,7 @@ static int rd_kafka_sasl_aws_msk_iam_init (rd_kafka_t *rk,
 
         /* Schedule a refresh 80% through its remaining lifetime */
         handle->wts_refresh_after =
-                (rd_ts_t)(now_wallclock + 0.1 *
+                (rd_ts_t)(now_wallclock + 0.8 *
                           (wts_md_lifetime - now_wallclock));
         
         handle->errstr = NULL;
