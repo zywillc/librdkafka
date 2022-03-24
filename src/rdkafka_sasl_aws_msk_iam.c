@@ -68,19 +68,22 @@ typedef struct rd_kafka_sasl_aws_msk_iam_handle_s {
         char *aws_region;  /* AWS region from conf */
         char *aws_security_token;  /* AWS security token from conf (optional) */
 
-        /**< When the credentials expire, in terms of the number of
-         *   milliseconds since the epoch. Wall clock time.
+        /**FIX
+         * < When the credentials expire, in terms of the number of
+         *   microseconds since the epoch. Wall clock time.
          */
         rd_ts_t wts_md_lifetime;
 
-        /**< The point after which credentials should be replaced with
-         * new ones, in terms of the number of milliseconds since the
+        /**FIX
+         * < The point after which credentials should be replaced with
+         * new ones, in terms of the number of microseconds since the
          * epoch. Wall clock time.
          */
         rd_ts_t wts_refresh_after;
 
-        /**< When the last credential refresh was enqueued (0 = never)
-         *   in terms of the number of milliseconds since the epoch.
+        /**FIX
+         * < When the last credential refresh was enqueued (0 = never)
+         *   in terms of the number of microseconds since the epoch.
          *   Wall clock time.
          */
         rd_ts_t wts_enqueued_refresh;
@@ -200,7 +203,7 @@ rd_kafka_aws_msk_iam_set_credential (rd_kafka_t *rk,
 
         /* Schedule a refresh 80% through its remaining lifetime */
         handle->wts_refresh_after =
-                (rd_ts_t)(now_wallclock + 0.8 *
+                (rd_ts_t)(now_wallclock + 0.1 *
                           (wts_md_lifetime - now_wallclock));
 
         RD_IF_FREE(handle->errstr, rd_free);
@@ -291,11 +294,11 @@ rd_kafka_aws_msk_iam_credential_refresh0 (
         strftime(hms, sizeof(char) * 7, "%H%M%S", tmp);
 
         rwlock_wrlock(&handle->lock);
+        handle->wts_enqueued_refresh = rd_uclock();
         handle_aws_access_key_id = rd_strdup(handle->aws_access_key_id);
         handle_aws_secret_access_key = rd_strdup(handle->aws_secret_access_key);
         handle_aws_region = rd_strdup(handle->aws_region);
         handle_aws_security_token = rd_strdup(handle->aws_security_token);
-
         /* parameters to build request_parameters */
         char *role_arn = rd_kafka_aws_uri_encode(conf->sasl.role_arn);
         char *role_session_name = rd_strdup(conf->sasl.role_session_name);
@@ -372,6 +375,9 @@ rd_kafka_aws_msk_iam_credential_refresh0 (
 
         rd_kafka_dbg(rk, SECURITY, "SASLAWSMSKIAM", "New AWS credentials retrieved from STS");
 
+        // rd_kafka_dbg(rk, SECURITY, "SASLAWSMSKIAM", "New Access Key Id: %s", credential->aws_access_key_id);
+        // rd_kafka_dbg(rk, SECURITY, "SASLAWSMSKIAM", "New Token: %s", credential->aws_security_token);
+
         RD_IF_FREE(handle_aws_access_key_id, rd_free);
         RD_IF_FREE(handle_aws_secret_access_key, rd_free);
         RD_IF_FREE(handle_aws_region, rd_free);
@@ -434,6 +440,9 @@ rd_kafka_aws_msk_iam_refresh_op (rd_kafka_t *rk,
          * make sure we don't refresh upon destruction since
          * the op has already been handled by this point.
          */
+
+        //rd_kafka_dbg(rk, SECURITY, "TESTTEST", "enter refresh op");
+
         rd_kafka_aws_msk_iam_credential_refresh(rk, rk->rk_conf.opaque);
         return RD_KAFKA_OP_RES_HANDLED;
 }
@@ -467,12 +476,19 @@ rd_kafka_aws_msk_iam_enqueue_credential_refresh_if_necessary (
 
         now_wallclock = rd_uclock();
 
-        rwlock_wrlock(&handle->lock);
+        // rwlock_wrlock(&handle->lock);
         if (handle->wts_refresh_after < now_wallclock &&
             handle->wts_enqueued_refresh <= handle->wts_refresh_after) {
-                rd_kafka_aws_msk_iam_enqueue_credential_refresh(handle);
-        }
-        rwlock_wrunlock(&handle->lock);
+                // rd_kafka_aws_msk_iam_enqueue_credential_refresh(handle);
+
+                /* blocking call to work around reply queue not triggered */
+                //TODO: debug the rt->rt_rep no-trigger
+                rd_kafka_aws_msk_iam_credential_refresh(handle->rk, handle->rk->rk_conf.opaque);
+        } //else {
+        //   rd_kafka_dbg(handle->rk, SECURITY, "TESTTEST", "enqueued_refresh timestamp: %"PRId64"", handle->wts_enqueued_refresh);
+        //   rd_kafka_dbg(handle->rk, SECURITY, "TESTTEST", "still have to wait %"PRId64"mms to refresh", (int64_t)(handle->wts_refresh_after - now_wallclock));
+        // }
+        // rwlock_wrunlock(&handle->lock);
 }
 
 /**
@@ -737,7 +753,7 @@ static int rd_kafka_sasl_aws_msk_iam_init (rd_kafka_t *rk,
         handle->rk = rk;
 
         rd_kafka_timer_start(&rk->rk_timers, &handle->credential_refresh_tmr,
-                             1 * 1000 * 1000,
+                             5 * 1000 * 1000,
                              rd_kafka_sasl_aws_msk_iam_credential_refresh_tmr_cb,
                              rk);
 
@@ -770,7 +786,7 @@ static int rd_kafka_sasl_aws_msk_iam_init (rd_kafka_t *rk,
 
         /* Schedule a refresh 80% through its remaining lifetime */
         handle->wts_refresh_after =
-                (rd_ts_t)(now_wallclock + 0.8 *
+                (rd_ts_t)(now_wallclock + 0.1 *
                           (wts_md_lifetime - now_wallclock));
         
         handle->errstr = NULL;
