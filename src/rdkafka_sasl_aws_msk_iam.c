@@ -481,7 +481,9 @@ rd_kafka_aws_msk_iam_enqueue_credential_refresh_if_necessary (
             handle->wts_enqueued_refresh <= handle->wts_refresh_after) {
                 // rd_kafka_aws_msk_iam_enqueue_credential_refresh(handle);
 
-                /* blocking call to work around reply queue not triggered */
+                /* blocking call to work around reply queue not triggered
+                *  still in thrd:main (thrd:app opaque no meaning but just keep signature)
+                */
                 //TODO: debug the rt->rt_rep no-trigger
                 rd_kafka_aws_msk_iam_credential_refresh(handle->rk, handle->rk->rk_conf.opaque);
         } //else {
